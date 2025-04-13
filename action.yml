@@ -1,17 +1,17 @@
 name: Custom Github Docker Action
-description: Call API and get open port
+description: Call API and get user name
 
 inputs:
-  ip:
-    description: User IP, from 192.168.99.1 to 192.168.99.254
+  user_id:
+    description: User ID, from 1 to 10
     required: true
-    default: 192.168.99.1
+    default: 1
 outputs:
-  open_port:
-    description: Getted open port
+  user_name:
+    description: Getted user name
 
 runs:
   using: docker
   image: Dockerfile
   args:
-    - ${{ inputs.ip }}
+    - ${{ inputs.user_id }}
