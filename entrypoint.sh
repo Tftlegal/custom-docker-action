@@ -1,10 +1,12 @@
 #!/bin/bash
 set -e
 
-api_url="https://jsonplaceholder.typicode.com/users/${INPUT_USER_ID}"
-echo $api_url
+# Используем правильную переменную для входа (без INPUT_ префикса)
+api_url="https://jsonplaceholder.typicode.com/users/$1"
+echo "API URL: $api_url"
 
-user_name=$(curl "${api_url}" | jq ".name")
-echo $user_name
+user_name=$(curl -s "${api_url}" | jq -r ".name")
+echo "User name: $user_name"
 
-echo "::set-output name=user_name::$user_name"
+# Новый формат вывода (старый ::set-output deprecated)
+echo "user_name=$user_name" >> $GITHUB_OUTPUT
