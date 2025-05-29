@@ -15,10 +15,18 @@ author: Автор action
 description: Описание action
 
 #Action как Docker-образ
-Наш кастомный action будет выполнять простой bash-скрипт. Этот скрипт будет обращаться к php REST API (как у сервиса JSON Placeholder) и получать имя пользователя по идентификатору.
+Наш кастомный action будет выполнять простой bash-скрипт. Этот скрипт будет обращаться к php REST API (как у сервиса JSON Placeholder) и получать имя пользователя(и нетолько) по идентификатору.
 API который будет иосользоваться для получения информации о пользователях и сервисах: https://up.sytes.ru/api5.php
-#Пример зпроста который будет осуществляться докер контейнером  и возвращать информацию о имени пользователя по его ID ( Для тестирования ) 
-curl  -u 'user_data_json:jjlskdfhr489jskk@klsdjf' -s "https://up.sytes.ru/api5.php?id=122" | jq -r ".username"
+
+#Примеры зпросов которые будут осуществляться докер контейнером  и возвращать информацию о имени пользователя по его ID ( Для тестирования )
+#Запросить username  пользователя c ID 122 
+curl  -u 'user_data_json:jjlskdfhr489jskk@klsdjf' -s -X GET https://up.sytes.ru/api5.php?id=122 | jq -r ".username"
+#Запросить заказ пользователя c ID 122
+curl  -u 'user_data_json:jjlskdfhr489jskk@klsdjf' -s -X GET https://up.sytes.ru/api5.php?id=122 | jq -r ".orderid"
+#Запросить Telegramid пользователя c ID 122
+curl  -u 'user_data_json:jjlskdfhr489jskk@klsdjf' -s -X GET https://up.sytes.ru/api5.php?id=122 | jq -r ".Telegramid"
+#Запросить Telegram пользователя c ID 122
+curl  -u 'user_data_json:jjlskdfhr489jskk@klsdjf' -s -X GET https://up.sytes.ru/api5.php?id=122 | jq -r ".Telegram"
 
 curl  -s -X GET http://api.sytes.ru:3605/api5.php?id=400 | jq -r ".username"
 
@@ -61,7 +69,7 @@ curl -s -X GET http://api.sytes.ru:3605/api5.php | jq '.[]'
   "Telegram": null
 }
 
-Вот реализация на PHP, которая имитирует поведение API, возвращающего данные пользователя по его id. 
+Вот реализация на функции PHP, которая имитирует поведение API JSONPlaceholder, возвращающего данные пользователя по его id. 
 Функция будет вынесена в отдельный файл, а затем использована в основном скрипте.
 
 1. Создадим файл api_functions.php с универсальной функцией php
@@ -152,11 +160,8 @@ if (isset($_GET['id']) && $_GET['id'] !== '') {
 
 Ключевые особенности:
 Не ходит в БД - работает только с уже загруженными данными
-
 Гибкое сравнение ID - приводит ID к строке для надежного сравнения
-
 Сохранение исходного формата - возвращает данные в том же формате, что и оригинальный массив $result
-
 Полная совместимость с вашим существующим кодом формирования $result
 
 #Примеры запросов:
