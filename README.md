@@ -281,6 +281,27 @@ curl -s https://jsonplaceholder.typicode.com/users
   }
 ]
 
+
+API JSONPlaceholder возвращает данные в формате JSON (JavaScript Object Notation). Это стандартный текстовый формат для представления структурированных данных, который широко используется в веб-API.
+
+Особенности ответа:
+Формат – application/json (можно проверить в заголовках HTTP-ответа).
+Структура – массив объектов, где каждый объект представляет пользователя с полями:
+id – уникальный идентификатор.
+name, username, email – основные данные пользователя.
+address – вложенный объект с адресом (включая geo с координатами).
+phone, website – контактные данные.
+company – информация о компании (название, слоган, сфера деятельности).
+
+Для чего удобен JSON?
+Человекочитаемый – легко анализировать глазами.
+Машиночитаемый – удобно парсить программами (например, через jq в CLI или в Python с помощью json.loads()).
+Универсальный – поддерживается почти всеми языками программирования.
+Если нужно обработать эти данные в командной строке, можно использовать jq:
+
+curl -s https://jsonplaceholder.typicode.com/users | jq '.[0].name'
+
+
 Указанное апи при указании id пользователя возвращает его описание 
 curl https://jsonplaceholder.typicode.com/users/5
 {
@@ -306,6 +327,108 @@ curl https://jsonplaceholder.typicode.com/users/5
     "bs": "revolutionize end-to-end systems"
   }
 }
+
+
+За счет чего  апи при указании id пользователя возвращает его описание ?
+curl https://jsonplaceholder.typicode.com/users/5
+{
+  "id": 5,
+  "name": "Chelsey Dietrich",
+  "username": "Kamren",
+  "email": "Lucio_Hettinger@annie.ca",
+  "address": {
+    "street": "Skiles Walks",
+    "suite": "Suite 351",
+    "city": "Roscoeview",
+    "zipcode": "33263",
+    "geo": {
+      "lat": "-31.8129",
+      "lng": "62.5342"
+    }
+  },
+  "phone": "(254)954-1289",
+  "website": "demarco.info",
+  "company": {
+    "name": "Keebler LLC",
+    "catchPhrase": "User-centric fault-tolerant solution",
+    "bs": "revolutionize end-to-end systems"
+  }
+}
+
+Как могла бы выглядеть такая универсаьная функция?
+API JSONPlaceholder возвращает данные конкретного пользователя по его id благодаря маршрутизации (routing) на сервере. Вот как это работает:
+
+Как API определяет, что вернуть?
+URL-шаблон:
+Сервер использует шаблон пути, например /users/:id, где :id — параметр.
+
+Запрос GET /users/5 → возвращает пользователя с id=5.
+
+Обработчик маршрута:
+Сервер находит запись в своей "базе данных" (в данном случае — в мок-данных) по переданному id и отправляет её в ответ.
+
+HTTP-метод:
+Запрос GET указывает, что нужно получить данные, а не изменить их.
+
+Универсальная функция на JavaScript (Node.js)
+Пример функции, которая имитирует поведение такого API:
+
+javascript
+Copy
+// Мок-данные (обычно хранятся в базе данных)
+const users = [
+  { id: 1, name: "Leanne Graham", ... },
+  { id: 2, name: "Ervin Howell", ... },
+  // ... остальные пользователи
+];
+
+// Функция для обработки запроса
+function getUserById(userId) {
+  // Находим пользователя в массиве по id
+  const user = users.find(u => u.id === userId);
+  
+  if (!user) {
+    return { error: "User not found", statusCode: 404 };
+  }
+  
+  return {
+    data: user,
+    statusCode: 200,
+    headers: { "Content-Type": "application/json" }
+  };
+}
+
+// Пример использования
+const response = getUserById(5);
+console.log(response.data);
+Как это выглядело бы на бэкенде (Express.js)
+Реальный сервер на Node.js с использованием Express:
+
+javascript
+
+const express = require('express');
+const app = express();
+
+app.get('/users/:id', (req, res) => {
+  const userId = parseInt(req.params.id);
+  const user = users.find(u => u.id === userId);
+
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  res.json(user);
+});
+
+app.listen(3000, () => console.log('Server started on port 3000'));
+Ключевые моменты
+Параметр пути: :id в URL (/users/:id).
+Поиск данных: Сервер ищет в своей "базе" запись с совпадающим id.
+
+Возврат ответа:
+Если пользователь найден → возвращает его данные (HTTP 200).
+Если нет → ошибка 404.
+Такой подход используется в большинстве REST API (например, GitHub, Twitter и др.).
 
 Как всегда, создаем директорию проекта, размещаем в ней файлы Dockerfile, entrypoint.sh и action.yml:
 
