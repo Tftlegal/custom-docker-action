@@ -16,7 +16,7 @@ jobs:
         id: get_user_name_step
         uses: ./
         with:
-          user_id: 122
+          user_id: 2
           
       - name: Echo user name
         run: echo "${{ steps.get_user_name_step.outputs.user_name }}"
