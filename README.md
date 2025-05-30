@@ -1,6 +1,6 @@
 ################ FORK SERVICE - GITGUB ACTIONS3 #################
 ```
-###################################################################### CUSTOM ACTIONS ########################################################################
+###################### CUSTOM ACTIONS #############################
 #Кастомный action
 В GitHub Marketplace есть отдельный раздел, посвященный Actions. Некоторые из них созданы известными компаниями,
 но бóльшая часть публикуется разработчиками. Но допустим, не удалось найти готовое решение для решения задачи.
@@ -197,3 +197,25 @@ function getUserFromIndex($index, $userId) {
 $usersIndex = createUsersIndex($result);
 // ...
 $user = getUserFromIndex($usersIndex, $_GET['id']);
+
+
+################## NEW METOD REST API #################
+
+#Показать ID и username существующих пользователей:
+curl -s -X GET "http://api.sytes.ru:3605/api5.php" | jq '.[] | [.id, .username]'
+
+#Создать ldif файл добавления пользователя с ID 133
+curl -s "http://api.sytes.ru:3605/ldif8.php?action=add&id=133" | jq
+
+#Создать ldif файл удаления пользователя с ID 133
+curl -s "http://api.sytes.ru:3605/ldif8.php?action=delete&id=133" | jq
+
+#Cоздать файл users.ldif для добавления всех пользователей 
+curl -s "http://api.sytes.ru:3605/ldif8.php?action=addall" | jq
+
+#Cоздать файл dusers.ldif для удаления всех пользователей 
+curl -s "http://api.sytes.ru:3605/ldif8.php?action=delall" | jq
+
+#Сгенерировать плейбук для удаления всех пользователей
+curl -s "http://api.sytes.ru:3605/ldif8.php?action=get_ansible" | jq -r .ansible_manifest
+
